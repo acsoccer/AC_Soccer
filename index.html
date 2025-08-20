@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AC Soccer</title>
+  <link rel="icon" href="Imagens/SOCCER.png" type="image/x-icon">
+  <link rel="icon" href="Imagens/SOCCER.png" sizes="16x16" />
+  <link rel="icon" href="Imagens/SOCCER.png" sizes="32x32" type="image/png" />
+  <link rel="icon" href="Imagens/SOCCER.png" sizes="48x48" type="image/png" />
+  <link rel="apple-touch-icon" href="Imagens/SOCCER.png">
+  <style>
+    :root{
+      --bg:#0f172a; /* slate-900 */
+      --panel:#111827; /* gray-900 */
+      --muted:#1f2937; /* gray-800 */
+      --text:#e5e7eb; /* gray-200 */
+      --accent:#22c55e; /* green-500 */
+      --accent-2:#3b82f6; /* blue-500 */
+      --warn:#f59e0b; /* amber-500 */
+      --danger:#ef4444; /* red-500 */
+      --success:#10b981; /* emerald-500 */
+      --border:#334155; /* slate-700 */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#020617);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+
+    .container{max-width:1200px;margin:0 auto;padding:clamp(12px,2vw,24px)}
+    .card{background:linear-gradient(180deg,#0b1222,#0a0f1a);border:1px solid var(--border);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+    .card-body{padding:16px 20px}
+
+    .login{max-width:460px;margin:6vh auto}
+    .title{font-size:clamp(20px,2.4vw,28px);font-weight:700;letter-spacing:.3px}
+    .subtitle{opacity:.8;font-size:14px}
+
+    .row{display:grid;gap:12px}
+    .grid-2{grid-template-columns:1fr 1fr}
+    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+    input,select,textarea{width:100%;padding:12px 12px;border-radius:12px;border:1px solid var(--border);background:#0b1222;color:var(--text);outline:none}
+    input:focus,select:focus,textarea:focus{border-color:var(--accent-2);box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+
+    .btn{appearance:none;border:1px solid var(--border);background:#0b1222;color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;transition:.2s ease;display:inline-flex;align-items:center;gap:8px}
+    .btn:hover{transform:translateY(-1px);border-color:#475569}
+    .btn-primary{background:linear-gradient(180deg,#2563eb,#1d4ed8);border-color:#1e40af}
+    .btn-success{background:linear-gradient(180deg,#16a34a,#15803d);border-color:#166534}
+    .btn-warn{background:linear-gradient(180deg,#f59e0b,#d97706);border-color:#b45309}
+    .btn-danger{background:linear-gradient(180deg,#ef4444,#dc2626);border-color:#b91c1c}
+
+    .toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding:8px}
+    .tab{padding:10px 14px;border:1px solid var(--border);border-bottom:none;border-top-left-radius:12px;border-top-right-radius:12px;background:#0b1222;cursor:pointer;opacity:.8}
+    .tab.active{opacity:1;background:linear-gradient(180deg,#0d1426,#0b1222)}
+
+    .hidden{display:none}
+    .badge{padding:2px 8px;border-radius:999px;background:#1e293b;border:1px solid var(--border);font-size:12px}
+
+    table{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    th,td{border-bottom:1px solid var(--border);padding:10px 8px;text-align:left}
+    thead th{background:#0b1222;font-weight:600}
+    tbody tr:hover{background:rgba(59,130,246,.06)}
+    td[contenteditable="true"]{background:rgba(16,185,129,.06)}
+
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:#0b1222}
+
+    .flex{display:flex;gap:10px;align-items:center}
+    .justify-between{justify-content:space-between}
+
+    .divider{height:1px;background:var(--border);margin:12px 0}
+
+    .right{ text-align:right }
+
+    @media (max-width:920px){
+      .grid-3,.grid-4{grid-template-columns:1fr}
+      .grid-2{grid-template-columns:1fr}
+      .tabs{overflow:auto}
+    }
+    .iac{
+      height: 50px;
+    }
+    .soccer {
+    position: absolute;
+    height: 79px;
+    margin: -15px -3px;
+    }
+  </style>
+  <!-- jsPDF para exportação -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <!-- LOGIN -->
+    <section id="loginSection" class="login card">
+      <div class="card-header">
+        <div>
+          <img class="iac" src="Imagens/logo bc sem fundo.png" alt="IAC">
+          <img class="soccer" src="Imagens/ACSoccer.png" alt="soccer">
+          <div class="title">Área Administrativa</div>
+          <div class="subtitle">Insira a chave de acesso</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <label>Chave de acesso
+            <input id="accessKey" type="password" placeholder="Chave de acesso" autocomplete="current-password" />
+          </label>
+          <button id="btnLogin" class="btn btn-primary">Entrar</button>
+          <small id="loginMsg" style="color:var(--danger)"></small>
+        </div>
+      </div>
+    </section>
+
+    <!-- APP -->
+    <section id="appSection" class="card hidden">
+      <div class="card-header">
+        <div class="title">Painel Administrativo</div>
+        <div class="flex">
+          <span id="statsAtletas" class="badge">0 atletas</span>
+          <span id="statsCaixa" class="badge">Caixa R$ 0,00</span>
+          <button id="btnSair" class="btn btn-danger">Sair</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab active" data-tab="chegada">Lista de Chegada</button>
+          <button class="tab" data-tab="cadastro">Cadastro de Atletas</button>
+          <button class="tab" data-tab="caixa">Controle de Caixa</button>
+          <button class="tab" data-tab="campeonato">Campeonato</button>
+        </div>
+
+        <!-- Conteúdos -->
+        <div id="tab-chegada">
+          <div class="toolbar">
+            <input id="novoNomeChegada" placeholder="Nome do atleta para lista de chegada" />
+            <select id="selAtletaExistente"></select>
+            <button class="btn btn-success" id="btnAddChegada">Adicionar à lista</button>
+            <button class="btn" id="btnGerar2">Gerar 2 primeiras equipes (16)</button>
+            <button class="btn" id="btnGerarRestante">Embaralhar restantes em grupos de 8</button>
+            <button class="btn btn-danger" id="btnLimparChegada">Limpar lista</button>
+          </div>
+          <div id="listaChegadaWrap" class="row"></div>
+          <div class="divider"></div>
+          <div class="row grid-2" id="equipesIniciais"></div>
+          <div class="divider"></div>
+          <div class="row" id="equipesRestantes"></div>
+        </div>
+
+        <div id="tab-cadastro" class="hidden">
+          <form id="formCadastro" onsubmit="return false;">
+            <div class="row grid-3">
+              <label>Nome completo (mín. 9 letras)
+                <input id="cadNome" required />
+              </label>
+              <label>Data de nascimento
+                <input id="cadNascimento" type="date" required />
+              </label>
+              <label>Idade
+                <input id="cadIdade" type="number" readonly />
+              </label>
+              <label id="lblResponsavel" class="hidden">Nome do responsável (obrigatório &lt; 16)
+                <input id="cadResponsavel" />
+              </label>
+              <label>CPF
+                <input id="cadCPF" placeholder="00000000000" />
+              </label>
+              <label>Telefone (XXXXXXXXXXX)
+                <input id="cadTelefone" placeholder="11987654321" required />
+              </label>
+              <label>CEP
+                <input id="cadCEP" placeholder="00000000" />
+              </label>
+              <label>Endereço
+                <input id="cadEndereco" />
+              </label>
+              <label>Complemento
+                <input id="cadCompl" />
+              </label>
+              <label>Número
+                <input id="cadNumero" />
+              </label>
+            </div>
+            <div class="toolbar">
+              <button class="btn btn-primary" id="btnSalvarAtleta">Salvar atleta</button>
+              <button class="btn" id="btnExportAtletas">Exportar lista (PDF)</button>
+            </div>
+          </form>
+
+          <div class="toolbar">
+            <input id="buscaAtleta" placeholder="Buscar por ID, nome, idade ou data (aaaa-mm-dd)" />
+          </div>
+
+          <div class="row">
+            <table id="tblAtletas">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nome</th>
+                  <th>Idade</th>
+                  <th>Valor Pago</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="tab-caixa" class="hidden">
+          <div class="toolbar">
+            <select id="selAtletaCaixa"></select>
+            <input id="valorCaixa" type="number" step="0.01" placeholder="Valor" />
+            <select id="tipoMov">
+              <option value="entrada">Entrada</option>
+              <option value="saida">Saída</option>
+            </select>
+            <input id="descMov" placeholder="Descrição (ex.: mensalidade, material, etc.)" />
+            <button id="btnAddMov" class="btn btn-success">Adicionar</button>
+            <button id="btnExportCaixa" class="btn">Exportar movimentos (PDF)</button>
+          </div>
+
+          <div class="row">
+            <div class="pill">Total de Caixa: <strong id="totalCaixa">R$ 0,00</strong></div>
+          </div>
+
+          <div class="row">
+            <table id="tblCaixa">
+              <thead>
+                <tr>
+                  <th>Data/Hora</th>
+                  <th>Tipo</th>
+                  <th>Atleta</th>
+                  <th>Descrição</th>
+                  <th class="right">Valor</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="tab-campeonato" class="hidden">
+          <div class="toolbar">
+            <select id="selAtletaCamp"></select>
+            <button id="btnAddCamp" class="btn btn-success">Adicionar ao campeonato</button>
+            <button id="btnLimparCamp" class="btn btn-danger">Limpar tabela</button>
+            <select id="ordemCamp">
+              <option value="classico">Classificação (Pts, V, E, D, G)</option>
+              <option value="pontos">Pontos</option>
+              <option value="jogos">Jogos</option>
+              <option value="vitorias">Vitórias</option>
+              <option value="empates">Empates</option>
+              <option value="derrotas">Derrotas</option>
+              <option value="gols">Gols</option>
+            </select>
+          </div>
+          <div class="row">
+            <table id="tblCamp">
+              <thead>
+                <tr>
+                  <th>Pos</th>
+                  <th>Nome</th>
+                  <th>Pontos</th>
+                  <th>Jogos</th>
+                  <th>Vitórias</th>
+                  <th>Empates</th>
+                  <th>Derrotas</th>
+                  <th>Gols</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+<script>
+/* ==========================
+   Persistência (localStorage)
+   ========================== */
+const DB_KEYS = {
+  atletas: 'app_atletas_v1',
+  movimentos: 'app_caixa_v1',
+  campeonato: 'app_camp_v1',
+  chegada: 'app_chegada_v1'
+};
+const MENSALIDADE_PADRAO = 20.00; // pode ajustar se necessário
+
+function loadDB(key){
+  try{ return JSON.parse(localStorage.getItem(key) || '[]'); }catch(e){ return []; }
+}
+function saveDB(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+
+/* ==========================
+   Utilitários
+   ========================== */
+const fmtBRL = v => v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+function idadeFromDateStr(dateStr){
+  if(!dateStr) return 0;
+  const d = new Date(dateStr);
+  const today = new Date();
+  let idade = today.getFullYear() - d.getFullYear();
+  const m = today.getMonth() - d.getMonth();
+  if(m < 0 || (m === 0 && today.getDate() < d.getDate())) idade--;
+  return idade;
+}
+function onlyDigits(s){ return (s||'').replace(/\D+/g,''); }
+function validarCPF(cpf){
+  cpf = onlyDigits(cpf);
+  if(!cpf || cpf.length !== 11 || /^([0-9])\1+$/.test(cpf)) return false;
+  let soma = 0; for(let i=0;i<9;i++) soma += parseInt(cpf.charAt(i))*(10-i);
+  let d1 = 11 - (soma % 11); if(d1>9) d1=0; if(d1 !== parseInt(cpf.charAt(9))) return false;
+  soma = 0; for(let i=0;i<10;i++) soma += parseInt(cpf.charAt(i))*(11-i);
+  let d2 = 11 - (soma % 11); if(d2>9) d2=0; if(d2 !== parseInt(cpf.charAt(10))) return false;
+  return true;
+}
+function random3(){ return (''+Math.floor(100+Math.random()*900)); }
+function uniq3(existing){
+  let id; const set = new Set(existing.map(a=>a.id));
+  do{ id = random3(); } while(set.has(id));
+  return id;
+}
+function byNome(a,b){ return a.nome.localeCompare(b.nome,'pt-BR',{sensitivity:'base'}); }
+
+/* ==========================
+   Estado em memória
+   ========================== */
+let atletas = loadDB(DB_KEYS.atletas);
+let movimentos = loadDB(DB_KEYS.movimentos);
+let camp = loadDB(DB_KEYS.campeonato);
+let chegada = loadDB(DB_KEYS.chegada); // array de nomes (string)
+
+/* ==========================
+   Login
+   ========================== */
+const loginSection = document.getElementById('loginSection');
+const appSection = document.getElementById('appSection');
+const accessKey = document.getElementById('accessKey');
+const btnLogin = document.getElementById('btnLogin');
+const loginMsg = document.getElementById('loginMsg');
+const btnSair  = document.getElementById('btnSair');
+
+btnLogin.addEventListener('click',()=>{
+  if(accessKey.value.trim()==='074708'){
+    loginSection.classList.add('hidden');
+    appSection.classList.remove('hidden');
+    renderAll();
+  }else{
+    loginMsg.textContent = 'Chave incorreta.';
+  }
+});
+btnSair.addEventListener('click',()=>{ location.reload(); });
+
+/* ==========================
+   Tabs
+   ========================== */
+const tabs = document.querySelectorAll('.tab');
+const panes = {
+  chegada: document.getElementById('tab-chegada'),
+  cadastro: document.getElementById('tab-cadastro'),
+  caixa: document.getElementById('tab-caixa'),
+  campeonato: document.getElementById('tab-campeonato')
+};
+
+tabs.forEach(t=>t.addEventListener('click',()=>{
+  tabs.forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  Object.values(panes).forEach(p=>p.classList.add('hidden'));
+  panes[t.dataset.tab].classList.remove('hidden');
+}));
+
+/* ==========================
+   Lista de Chegada & Equipes
+   ========================== */
+const novoNomeChegada = document.getElementById('novoNomeChegada');
+const selAtletaExistente = document.getElementById('selAtletaExistente');
+const btnAddChegada = document.getElementById('btnAddChegada');
+const btnGerar2 = document.getElementById('btnGerar2');
+const btnGerarRestante = document.getElementById('btnGerarRestante');
+const btnLimparChegada = document.getElementById('btnLimparChegada');
+const listaChegadaWrap = document.getElementById('listaChegadaWrap');
+const equipesIniciais = document.getElementById('equipesIniciais');
+const equipesRestantes = document.getElementById('equipesRestantes');
+
+function renderSelAtletaExistente(){
+  selAtletaExistente.innerHTML = '<option value="">— escolher no cadastro —</option>' +
+    atletas.sort(byNome).map(a=>`<option value="${a.nome}">${a.nome}</option>`).join('');
+}
+
+function renderListaChegada(){
+  saveDB(DB_KEYS.chegada, chegada);
+  listaChegadaWrap.innerHTML = '';
+  const ul = document.createElement('ul');
+  ul.style.listStyle='none'; ul.style.padding=0; ul.style.margin=0; ul.style.display='grid'; ul.style.gap='8px';
+  chegada.forEach((nome,idx)=>{
+    const li = document.createElement('li');
+    li.className='flex justify-between';
+    li.innerHTML = `<span class="pill">${idx+1}. ${nome}</span>
+                    <span class="flex">
+                      <button class="btn btn-warn" data-action="up" data-idx="${idx}">▲</button>
+                      <button class="btn btn-warn" data-action="down" data-idx="${idx}">▼</button>
+                      <button class="btn btn-danger" data-action="del" data-idx="${idx}">Remover</button>
+                    </span>`;
+    ul.appendChild(li);
+  });
+  listaChegadaWrap.appendChild(ul);
+  listaChegadaWrap.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const i = +b.dataset.idx; const act = b.dataset.action;
+      if(act==='del'){ chegada.splice(i,1); }
+      if(act==='up' && i>0){ [chegada[i-1],chegada[i]]=[chegada[i],chegada[i-1]]; }
+      if(act==='down' && i<chegada.length-1){ [chegada[i+1],chegada[i]]=[chegada[i],chegada[i+1]]; }
+      renderListaChegada();
+      renderStats();
+    });
+  });
+}
+
+btnAddChegada.addEventListener('click',()=>{
+  const nomeLivre = novoNomeChegada.value.trim();
+  const nomeSel = selAtletaExistente.value;
+  const nome = nomeLivre || nomeSel;
+  if(!nome){ alert('Informe um nome ou escolha um atleta do sistema.'); return; }
+  chegada.push(nome);
+  novoNomeChegada.value=''; selAtletaExistente.value='';
+  renderListaChegada();
+});
+
+btnLimparChegada.addEventListener('click',()=>{
+  if(confirm('Limpar toda a lista de chegada?')){ chegada=[]; renderListaChegada(); equipesIniciais.innerHTML=''; equipesRestantes.innerHTML=''; saveDB(DB_KEYS.chegada, chegada); }
+});
+
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function renderEditableTeamTable(title, nomes, rowsMin){
+  const wrap = document.createElement('div');
+  wrap.className='card';
+  const header = document.createElement('div'); header.className='card-header'; header.innerHTML = `<div class="title" style="font-size:18px">${title}</div>`;
+  const body = document.createElement('div'); body.className='card-body';
+  const table = document.createElement('table');
+  table.innerHTML = `<thead><tr><th>Nome</th><th>Cartão Amarelo</th><th>Cartão Vermelho</th><th>Gols</th></tr></thead><tbody></tbody>`;
+  const tb = table.querySelector('tbody');
+  const linhas = Math.max(rowsMin||0, nomes.length);
+  for(let i=0;i<linhas;i++){
+    const tr = document.createElement('tr');
+    const nome = nomes[i]||'';
+    tr.innerHTML = `<td contenteditable="true">${nome}</td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>`;
+    tb.appendChild(tr);
+  }
+  body.appendChild(table); wrap.appendChild(header); wrap.appendChild(body);
+  return wrap;
+}
+
+btnGerar2.addEventListener('click',()=>{
+  if(chegada.length < 1){ alert('Adicione nomes na lista de chegada primeiro.'); return; }
+  const primeiros16 = shuffle(chegada.slice(0,16));
+  const t1 = primeiros16.slice(0,8);
+  const t2 = primeiros16.slice(8,16);
+  equipesIniciais.innerHTML='';
+  equipesIniciais.appendChild(renderEditableTeamTable('Equipe A (primeiros 16)', t1, 10));
+  equipesIniciais.appendChild(renderEditableTeamTable('Equipe B (primeiros 16)', t2, 10));
+});
+
+btnGerarRestante.addEventListener('click',()=>{
+  if(chegada.length <= 16){ alert('Necessário ter mais de 16 nomes na lista.'); return; }
+  const resto = shuffle(chegada.slice(16));
+  equipesRestantes.innerHTML='';
+  // dividir em grupos de 8; cada tabela com pelo menos 9 linhas
+  for(let i=0;i<resto.length;i+=8){
+    const grupo = resto.slice(i,i+8);
+    equipesRestantes.appendChild(renderEditableTeamTable(`Grupo ${Math.floor(i/8)+1} (restantes)`, grupo, 9));
+  }
+});
+
+/* ==========================
+   Cadastro de Atletas
+   ========================== */
+const cadNome = document.getElementById('cadNome');
+const cadNascimento = document.getElementById('cadNascimento');
+const cadIdade = document.getElementById('cadIdade');
+const cadResponsavel = document.getElementById('cadResponsavel');
+const lblResponsavel = document.getElementById('lblResponsavel');
+const cadCPF = document.getElementById('cadCPF');
+const cadTelefone = document.getElementById('cadTelefone');
+const cadCEP = document.getElementById('cadCEP');
+const cadEndereco = document.getElementById('cadEndereco');
+const cadCompl = document.getElementById('cadCompl');
+const cadNumero = document.getElementById('cadNumero');
+const btnSalvarAtleta = document.getElementById('btnSalvarAtleta');
+const btnExportAtletas = document.getElementById('btnExportAtletas');
+const buscaAtleta = document.getElementById('buscaAtleta');
+const tblAtletas = document.querySelector('#tblAtletas tbody');
+
+cadNascimento.addEventListener('change',()=>{
+  const id = idadeFromDateStr(cadNascimento.value);
+  cadIdade.value = id;
+  lblResponsavel.classList.toggle('hidden', !(id<16));
+});
+
+cadCEP.addEventListener('blur',()=>{
+  const cep = onlyDigits(cadCEP.value);
+  if(cep.length!==8) return;
+  fetch(`https://viacep.com.br/ws/${cep}/json/`).then(r=>r.json()).then(d=>{
+    if(d && !d.erro){
+      cadEndereco.value = `${d.logradouro||''}, ${d.bairro||''}, ${d.localidade||''}/${d.uf||''}`.replace(/^,\s*/,'');
+    }
+  }).catch(()=>{});
+});
+
+function requisitosValidos(){
+  const nome = (cadNome.value||'').trim();
+  const letras = nome.replace(/[^A-Za-zÀ-ÿ]/g,'');
+  const idade = idadeFromDateStr(cadNascimento.value);
+  const telefoneOk = /^\d{11}$/.test(onlyDigits(cadTelefone.value));
+  const cpfVal = cadCPF.value ? validarCPF(cadCPF.value) : true;
+  const cepOuEnd = onlyDigits(cadCEP.value).length===8 || (cadEndereco.value||'').trim().length>0;
+  if(letras.length < 9){ alert('Nome deve ter no mínimo 9 letras.'); return false; }
+  if(!cadNascimento.value){ alert('Data de nascimento é obrigatória.'); return false; }
+  if(idade<16 && (cadResponsavel.value||'').trim().length===0){ alert('Responsável é obrigatório para menores de 16.'); return false; }
+  if(!telefoneOk){ alert('Telefone deve estar no formato XXXXXXXXXXX (11 dígitos).'); return false; }
+  if(!cpfVal){ alert('CPF inválido.'); return false; }
+  if(!cepOuEnd){ alert('Informe CEP (8 dígitos) ou Endereço.'); return false; }
+  return true;
+}
+
+btnSalvarAtleta.addEventListener('click',()=>{
+  if(!requisitosValidos()) return;
+  const novo = {
+    id: uniq3(atletas),
+    nome: cadNome.value.trim(),
+    nascimento: cadNascimento.value,
+    idade: idadeFromDateStr(cadNascimento.value),
+    responsavel: cadResponsavel.value.trim(),
+    cpf: onlyDigits(cadCPF.value),
+    telefone: onlyDigits(cadTelefone.value),
+    cep: onlyDigits(cadCEP.value),
+    endereco: cadEndereco.value.trim(),
+    compl: cadCompl.value.trim(),
+    numero: cadNumero.value.trim(),
+    pago: 0
+  };
+  atletas.push(novo);
+  saveDB(DB_KEYS.atletas, atletas);
+  formCadastro.reset(); cadIdade.value=''; lblResponsavel.classList.add('hidden');
+  renderAtletas(); renderSelects(); renderStats();
+});
+
+function renderAtletas(filter=''){
+  const q = filter.trim().toLowerCase();
+  const list = [...atletas].sort(byNome).filter(a=>{
+    if(!q) return true;
+    return a.id.includes(q) || a.nome.toLowerCase().includes(q) || (''+a.idade).includes(q) || (a.nascimento||'').includes(q);
+  });
+  tblAtletas.innerHTML='';
+  list.forEach(a=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${a.id}</td>
+      <td>${a.nome}</td>
+      <td>${a.idade}</td>
+      <td>${fmtBRL(a.pago||0)}</td>
+      <td class="flex">
+        <button class="btn btn-success" data-act="pagar" data-id="${a.id}">Marcar mensalidade paga</button>
+        <button class="btn" data-act="editar" data-id="${a.id}">Editar</button>
+        <button class="btn btn-danger" data-act="excluir" data-id="${a.id}">Excluir</button>
+      </td>`;
+    tblAtletas.appendChild(tr);
+  });
+  // ações
+  tblAtletas.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const id = b.dataset.id; const act = b.dataset.act; const idx = atletas.findIndex(x=>x.id===id);
+      if(idx<0) return;
+      if(act==='excluir'){
+        if(confirm('Excluir atleta?')){
+          // também remover do campeonato
+          camp = camp.filter(r=>r.atletaId!==id);
+          atletas.splice(idx,1);
+          saveDB(DB_KEYS.atletas, atletas); saveDB(DB_KEYS.campeonato, camp);
+          renderAtletas(buscaAtleta.value); renderSelects(); renderCamp(); renderStats();
+        }
+      }
+      if(act==='editar'){
+        const a = atletas[idx];
+        const nome = prompt('Nome', a.nome)||a.nome;
+        const nasc = prompt('Data de nascimento (aaaa-mm-dd)', a.nascimento)||a.nascimento;
+        const tel = prompt('Telefone (somente dígitos)', a.telefone)||a.telefone;
+        const end = prompt('Endereço', a.endereco)||a.endereco;
+        a.nome=nome; a.nascimento=nasc; a.telefone=onlyDigits(tel); a.endereco=end; a.idade=idadeFromDateStr(a.nascimento);
+        saveDB(DB_KEYS.atletas, atletas); renderAtletas(buscaAtleta.value); renderSelects(); renderCamp(); renderStats();
+      }
+      if(act==='pagar'){
+        atletas[idx].pago = (atletas[idx].pago||0) + MENSALIDADE_PADRAO;
+        // registra no caixa como entrada
+        movimentos.push({
+          id: crypto.randomUUID(),
+          ts: new Date().toISOString(),
+          tipo: 'entrada',
+          atletaId: id,
+          atletaNome: atletas[idx].nome,
+          descricao: 'Mensalidade',
+          valor: MENSALIDADE_PADRAO
+        });
+        saveDB(DB_KEYS.movimentos, movimentos);
+        saveDB(DB_KEYS.atletas, atletas);
+        renderAtletas(buscaAtleta.value); renderCaixa(); renderStats();
+      }
+    });
+  });
+}
+
+buscaAtleta.addEventListener('input',()=>renderAtletas(buscaAtleta.value));
+
+btnExportAtletas.addEventListener('click',()=>{
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFontSize(14); doc.text('Lista de Atletas', 14, 16);
+  const linhas = [["ID","Nome","Idade","Valor Pago"]];
+  [...atletas].sort(byNome).forEach(a=>{
+    linhas.push([a.id,a.nome,String(a.idade),fmtBRL(a.pago||0)]);
+  });
+  // render simples
+  let y=24; const colW=[20,100,20,50];
+  linhas.forEach((row,i)=>{
+    let x=14; row.forEach((cell,ci)=>{ doc.text(String(cell), x, y); x+=colW[ci]; }); y+=8; if(y>280){ doc.addPage(); y=20; }
+  });
+  doc.save('atletas.pdf');
+});
+
+/* ==========================
+   Controle de Caixa
+   ========================== */
+const selAtletaCaixa = document.getElementById('selAtletaCaixa');
+const valorCaixa = document.getElementById('valorCaixa');
+const tipoMov = document.getElementById('tipoMov');
+const descMov = document.getElementById('descMov');
+const btnAddMov = document.getElementById('btnAddMov');
+const btnExportCaixa = document.getElementById('btnExportCaixa');
+const tblCaixa = document.querySelector('#tblCaixa tbody');
+const totalCaixa = document.getElementById('totalCaixa');
+
+function renderSelects(){
+  const opts = '<option value="">— sem atleta —</option>' + atletas.sort(byNome).map(a=>`<option value="${a.id}">${a.nome}</option>`).join('');
+  selAtletaCaixa.innerHTML = opts;
+  selAtletaCamp.innerHTML = '<option value="">— escolher atleta —</option>' + atletas.sort(byNome).map(a=>`<option value="${a.id}">${a.nome}</option>`).join('');
+  renderSelAtletaExistente();
+}
+
+function renderCaixa(){
+  // total
+  const total = movimentos.reduce((acc,m)=> acc + (m.tipo==='entrada'? m.valor : -m.valor), 0);
+  totalCaixa.textContent = fmtBRL(total);
+  document.getElementById('statsCaixa').textContent = `Caixa ${fmtBRL(total)}`;
+
+  // tabela
+  tblCaixa.innerHTML='';
+  movimentos.slice().reverse().forEach(m=>{
+    const tr = document.createElement('tr');
+    const dt = new Date(m.ts);
+    tr.innerHTML = `
+      <td>${dt.toLocaleString('pt-BR')}</td>
+      <td><span class="badge" style="background:${m.tipo==='entrada'?'#064e3b':'#4c0519'}">${m.tipo}</span></td>
+      <td>${m.atletaNome||''}</td>
+      <td>${m.descricao||''}</td>
+      <td class="right">${fmtBRL(m.valor||0)}</td>
+      <td class="flex">
+        <button class="btn" data-act="edit" data-id="${m.id}">Editar</button>
+        <button class="btn btn-danger" data-act="del" data-id="${m.id}">Excluir</button>
+      </td>`;
+    tblCaixa.appendChild(tr);
+  });
+
+  // ações
+  tblCaixa.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const id = b.dataset.id; const act = b.dataset.act;
+      const idx = movimentos.findIndex(x=>x.id===id);
+      if(idx<0) return;
+      const m = movimentos[idx];
+      if(act==='del'){
+        if(confirm('Excluir registro?')){
+          // se vinculado a atleta e for entrada, ajustar pago
+          if(m.atletaId && m.tipo==='entrada'){
+            const a = atletas.find(x=>x.id===m.atletaId); if(a){ a.pago = Math.max(0,(a.pago||0)-(m.valor||0)); }
+            saveDB(DB_KEYS.atletas, atletas); renderAtletas(buscaAtleta.value);
+          }
+          movimentos.splice(idx,1); saveDB(DB_KEYS.movimentos, movimentos); renderCaixa(); renderStats();
+        }
+      }
+      if(act==='edit'){
+        const novoTipo = prompt('Tipo (entrada/saida)', m.tipo)||m.tipo;
+        const novoDesc = prompt('Descrição', m.descricao||'')||m.descricao;
+        const novoValor = parseFloat(prompt('Valor', String(m.valor||0))||m.valor);
+        if(novoTipo!=='entrada' && novoTipo!=='saida') return alert('Tipo inválido.');
+        // ajuste em atleta se mudou valor/tipo
+        if(m.atletaId){
+          const a = atletas.find(x=>x.id===m.atletaId);
+          if(a){
+            if(m.tipo==='entrada') a.pago = Math.max(0,(a.pago||0)-(m.valor||0));
+            if(novoTipo==='entrada') a.pago = (a.pago||0) + novoValor;
+            saveDB(DB_KEYS.atletas, atletas); renderAtletas(buscaAtleta.value);
+          }
+        }
+        m.tipo=novoTipo; m.descricao=novoDesc; m.valor=isNaN(novoValor)?m.valor:novoValor;
+        saveDB(DB_KEYS.movimentos, movimentos); renderCaixa(); renderStats();
+      }
+    });
+  });
+}
+
+btnAddMov.addEventListener('click',()=>{
+  const valor = parseFloat(valorCaixa.value);
+  if(isNaN(valor) || valor<=0){ alert('Informe um valor válido.'); return; }
+  const tipo = tipoMov.value;
+  const atletaId = selAtletaCaixa.value || null;
+  const atletaNome = atletaId ? (atletas.find(a=>a.id===atletaId)||{}).nome : '';
+  const mov = { id: crypto.randomUUID(), ts: new Date().toISOString(), tipo, atletaId, atletaNome, descricao: descMov.value.trim(), valor };
+  movimentos.push(mov);
+  // impacto em atleta
+  if(atletaId){
+    const a = atletas.find(x=>x.id===atletaId); if(a){ a.pago = (a.pago||0) + (tipo==='entrada'? valor : -valor); if(a.pago<0) a.pago=0; }
+    saveDB(DB_KEYS.atletas, atletas); renderAtletas(buscaAtleta.value);
+  }
+  saveDB(DB_KEYS.movimentos, movimentos);
+  valorCaixa.value=''; descMov.value=''; selAtletaCaixa.value='';
+  renderCaixa(); renderStats();
+});
+
+btnExportCaixa.addEventListener('click',()=>{
+  const { jsPDF } = window.jspdf; const doc = new jsPDF();
+  doc.setFontSize(14); doc.text('Movimentos do Caixa', 14, 16);
+  let y=24; const head=["Data/Hora","Tipo","Atleta","Descrição","Valor"]; const col=[40,20,50,50,30];
+  function line(row){ let x=14; row.forEach((c,i)=>{ doc.text(String(c), x, y); x+=col[i]; }); y+=8; if(y>280){ doc.addPage(); y=20; } }
+  line(head);
+  movimentos.forEach(m=> line([new Date(m.ts).toLocaleString('pt-BR'), m.tipo, m.atletaNome||'', m.descricao||'', fmtBRL(m.valor||0)]));
+  const total = movimentos.reduce((acc,m)=> acc + (m.tipo==='entrada'? m.valor : -m.valor), 0);
+  y+=4; doc.text(`Total: ${fmtBRL(total)}`, 14, y);
+  doc.save('caixa.pdf');
+});
+
+/* ==========================
+   Campeonato (Pontos Corridos)
+   ========================== */
+const selAtletaCamp = document.getElementById('selAtletaCamp');
+const btnAddCamp = document.getElementById('btnAddCamp');
+const btnLimparCamp = document.getElementById('btnLimparCamp');
+const ordemCamp = document.getElementById('ordemCamp');
+const tblCamp = document.querySelector('#tblCamp tbody');
+
+btnAddCamp.addEventListener('click',()=>{
+  const id = selAtletaCamp.value; if(!id) return alert('Escolha um atleta.');
+  if(camp.find(r=>r.atletaId===id)) return alert('Atleta já está na tabela.');
+  const a = atletas.find(x=>x.id===id); if(!a) return;
+  camp.push({ atletaId: id, nome: a.nome, v:0,e:0,d:0,g:0 });
+  saveDB(DB_KEYS.campeonato, camp); renderCamp();
+});
+
+btnLimparCamp.addEventListener('click',()=>{ if(confirm('Limpar a tabela do campeonato?')){ camp=[]; saveDB(DB_KEYS.campeonato, camp); renderCamp(); } });
+ordemCamp.addEventListener('change',()=> renderCamp());
+
+function calcPts(r){ return r.v*3 + r.e; }
+function calcJogos(r){ return r.v + r.e + r.d; }
+
+function ordenarCamp(lista){
+  const modo = ordemCamp.value;
+  if(modo==='classico'){
+    // Critério: pontos, vitórias, empates, derrotas, gols (derrotas em ordem crescente)
+    return lista.sort((a,b)=>{
+      const d1 = calcPts(b)-calcPts(a); if(d1) return d1;
+      const d2 = b.v-a.v; if(d2) return d2;
+      const d3 = b.e-a.e; if(d3) return d3;
+      const d4 = a.d-b.d; if(d4) return d4; // menos derrotas melhor
+      const d5 = b.g-a.g; if(d5) return d5;
+      return a.nome.localeCompare(b.nome,'pt-BR');
+    });
+  }
+  if(modo==='pontos') return lista.sort((a,b)=> (calcPts(b)-calcPts(a)) || a.nome.localeCompare(b.nome));
+  if(modo==='jogos') return lista.sort((a,b)=> (calcJogos(b)-calcJogos(a)) || a.nome.localeCompare(b.nome));
+  if(modo==='vitorias') return lista.sort((a,b)=> (b.v-a.v) || a.nome.localeCompare(b.nome));
+  if(modo==='empates') return lista.sort((a,b)=> (b.e-a.e) || a.nome.localeCompare(b.nome));
+  if(modo==='derrotas') return lista.sort((a,b)=> (a.d-b.d) || a.nome.localeCompare(b.nome)); // menos derrotas
+  if(modo==='gols') return lista.sort((a,b)=> (b.g-a.g) || a.nome.localeCompare(b.nome));
+}
+
+function renderCamp(){
+  saveDB(DB_KEYS.campeonato, camp);
+  const list = ordenarCamp([...camp]);
+  tblCamp.innerHTML='';
+  list.forEach((r,idx)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${idx+1}</td>
+      <td>${r.nome}</td>
+      <td>${calcPts(r)}</td>
+      <td>${calcJogos(r)}</td>
+      <td contenteditable="true" data-f="v">${r.v}</td>
+      <td contenteditable="true" data-f="e">${r.e}</td>
+      <td contenteditable="true" data-f="d">${r.d}</td>
+      <td contenteditable="true" data-f="g">${r.g}</td>
+      <td class="flex">
+        <button class="btn btn-danger" data-act="del" data-id="${r.atletaId}">Excluir</button>
+      </td>`;
+    tblCamp.appendChild(tr);
+  });
+  // edição inline
+  [...tblCamp.querySelectorAll('td[contenteditable]')].forEach(td=>{
+    td.addEventListener('blur',()=>{
+      const row = td.parentElement; const pos = [...tblCamp.children].indexOf(row);
+      const r = ordenarCamp([...camp])[pos]; // obtém ref pelo ordenado atual
+      const original = camp.find(x=>x.atletaId===r.atletaId);
+      const f = td.dataset.f; const val = parseInt(onlyDigits(td.textContent))||0;
+      original[f] = val; saveDB(DB_KEYS.campeonato, camp); renderCamp();
+    });
+  });
+  // excluir
+  tblCamp.querySelectorAll('button[data-act="del"]').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const id = b.dataset.id; camp = camp.filter(x=>x.atletaId!==id); saveDB(DB_KEYS.campeonato, camp); renderCamp();
+    });
+  });
+}
+
+/* ==========================
+   Estatísticas/Header
+   ========================== */
+function renderStats(){
+  document.getElementById('statsAtletas').textContent = `${atletas.length} atletas`;
+}
+
+/* ==========================
+   Render inicial
+   ========================== */
+function renderAll(){
+  renderAtletas();
+  renderSelects();
+  renderCaixa();
+  renderCamp();
+  renderListaChegada();
+  renderStats();
+}
+
+// Exposição de elementos do form para reset
+const formCadastro = document.getElementById('formCadastro');
+
+</script>
+</body>
+</html>
